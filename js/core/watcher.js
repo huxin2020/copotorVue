@@ -1,4 +1,4 @@
- export class Watcher{
+ class Watcher{
         constructor(obj,key){
             Dep.target = this
             // this.cb = cb

@@ -1,5 +1,5 @@
 //Dep类  存储依赖的类
-   export class Dep{
+   class Dep{
         constructor(){
             this.subs = [] //构造方法中建立数组shubs
         }
@@ -14,3 +14,6 @@
             })
         }
     }
+// function alertInOne(){
+//     alert('in one');
+// }
