@@ -6,7 +6,7 @@
 
 // class Vue{
 //         constructor(options){
-	
+
 //             new Observable(options)//实例化observe
 //             Object.keys(options).forEach(key=>{//按照options的属性循环实例化watcher
 //                 new Watcher(options,key);
@@ -25,12 +25,13 @@ document.write("<script type='text/javascript'  src='./js/core/watcher.js'></scr
 // }
 
 class Vue{
-        constructor(options){
-			console.log(1)
-				console.log(options)
+        constructor(options,el,keys){
+
             new Observable(options)//实例化observe
             Object.keys(options).forEach(key=>{//按照options的属性循环实例化watcher
-                new Watcher(options,key);
+                new Watcher(options,key,function(value){
+									el.innerHTML = value
+							});
             })
         }
     }

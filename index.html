@@ -6,8 +6,11 @@
   </head>
   <body>
 <!--   	<script type="text/javascript"  src ="./js/vue.js" >
- 
+
   	</script> -->
+    <div id="app">
+
+    </div>
 <script  type="text/javascript"  src="./js/vue.js"></script>
 <script type="text/javascript">
 	// console.log("00")
@@ -16,12 +19,16 @@
     obtable={'time':'2019',
             'hour':'17'}
             //实例化Vue
-    var ob = new Vue(obtable)
+    var el = document.getElementById("app");
+    var ob = new Vue(obtable,el,"hour")
 //     console.log(obtable)
     // ob.time = '2020'
     // console.log(obtable.time)
     obtable.time = '2020'
-    // obtable.hour = '20'
+    setTimeout(function(){
+      obtable.time = 2024
+    },5000)
+//     obtable.hour = '20'
 
 </script>
 

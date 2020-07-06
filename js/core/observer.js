@@ -4,8 +4,6 @@
      class  Observable{
         constructor (obj) {
             //循环获取obj的对象的key，并对调用defineReactive的方法给bj的每个属性key增加get和set的方法
-console.log(2)
-console.log(obj)
             Object.keys(obj).forEach(key=>{
                 this.defineReactive(obj,key,obj[key])
             })
@@ -26,6 +24,7 @@ console.log(obj)
                   set:function reactsetter(newVale){
                       if(newVale != value){
                           value = newVale
+                  
                           dp.notify()
                       }
                   }                 
