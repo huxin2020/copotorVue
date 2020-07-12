@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>数据改变，视图更新</title>
+  </head>
+  <body>
+    <div id="app">
+      <p>姓名是{{ name.firstName }}</p>
+      <div>年龄是{{ age }}</div>
+      {{ name }}
+    </div>
+    <script type="text/javascript">
+      function Vue(options = {}) {
+        this.$options = options; // 将所有属性挂载在vue实例$options上
+        var data = (this._data = this.$options.data);
+        observe(this._data);
+        // data挂载在vue上面
+        for (let key in data) {
+          Object.defineProperty(this, key, {
+            enumrable: true,
+            get() {
+              // 当访问this实例上的name时，this不是去它本身上找到这个属性，而是从this._data上去寻找
+              return this._data[key];
+            },
+            set(newVal) {
+              this._data[key] = newVal;
+            }
+          });
+        }
+        // 识别大括号，将文本节点替换
+        new Compile(this.$options.el, this);
+      }
+      function Compile(el, vm) {
+
+        vm.$el = document.querySelector(el);
+        // 这一段打印有问题
+        //documentFragment是文档碎片
+        let fragment = document.createDocumentFragment();
+        // 这一步是遍历app根节点下的所有节点，因为是DOM树的形式，将节点拆分，挂在新的空白文档上，也就是孩子节点的父节点指向改变了，让fragment作为他们的根节点
+        while ((child = vm.$el.firstChild)) {
+           fragment.appendChild(child);
+      
+        }
+
+        // app下的孩子节点挂在fragment下，app下就没有节点，无法显示了了，所以需要显示回来
+        // var n = 1;
+        replace(fragment);
+ 
+        function replace(fragment) {
+ console.log("--1--")
+          Array.from(fragment.childNodes).forEach(function(node) {
+ 	 console.log("--2--")
+            // console.log(n)
+            // n++;
+            // console.log(node.textContent)//标签与标签之间有text节点，注释也算一个标签{{name}}
+            let text = node.textContent;
+            text = text.trim();
+            let reg = /\{\{(.*)\}\}/;
+            // 是文本节点 又匹配双大括号语法
+            if (node.nodeType === 3 && reg.test(text)) {
+              //打印匹配到的第一个 name.firstName age name
+              let key = RegExp.$1;
+              key = key.trim();
+              // console.log(vm._data[key])
+              // node.textContent =text.replace(reg,vm._data[key]) //这样拿不到对象的对象，因为name.firstName 不可能通过字面量拿到
+              // 要去遍历key，先拿到对象name，再拿到firstName
+              let arr = key.split("."); // [name,firstName]
+
+              let val = vm; //从vm中去拿
+              arr.forEach(function(k) {
+                val = val[k];
+              });
+
+              // 如果给的就是个对象，那么就序列化显示一下
+              if (typeof val === "object") val = JSON.stringify(val);
+
+              // 如果不是就直接显示基本数据类型
+              // 创建一个订阅/观察者，调用更新视图操作
+
+              new Subscribe(vm, key, function(newVal) {
+ 	 			console.log("--Subscribe--")
+                if (typeof newVal === "object") newVal = JSON.stringify(newVal);
+                // 如果不是就直接显示基本数据类型
+                node.textContent = text.replace(reg, newVal);
+              });
+
+              node.textContent = text.replace(reg, val);
+            }
+            // 如果不是文本节点，是标签，则需要遍历标签下面的孩子节点是否有文本节点
+            if (node.childNodes) {
+              replace(node);
+            }
+          });
+        }
+        vm.$el.appendChild(fragment);
+      }
+      function Observe(data) {
+ 	console.log("--进入observer--")
+        // 创建观察者/发布中心 观察所有被观察者/订阅者
+        let publish = new Publish();
+        for (let key in data) {
+          let val = data[key];
+          // 如果data中包含属性是对象，则需要递归对象的中属性，进行数据劫持
+          // 如果data中的属性就是普通数据类型，递归退出 -- 递归出口
+          observe(val);
+          Object.defineProperty(data, key, {
+            enumrable: true,
+            // 一旦调用get说明值有被使用，就需要添加进被观察者的队列中，需要被观察
+            get() {
+ 			console.log("---3---")
+ 			console.log(Publish.target)
+              Publish.target && publish.attachSub(Publish.target);
+              return val;
+            },
+            // 会在数据改变的时候直接设置
+            set(newVal) {
+              //数据并没有改变
+              if (newVal === val) {
+                return;
+              }
+              observe(newVal);
+              val = newVal;
+ console.log("---0---")
+ console.log(publish)
+              publish.notify();
+  console.log("---011---")
+            }
+          });
+        }
+      }
+
+      /**
+       *观察对象变化，并且为data对象创建属性
+       *@{data} 被观察的对象或属性
+       */
+      function observe(data) {
+        if (typeof data !== "object") return null;
+        return new Observe(data);
+      }
+
+      //这是针对对象是数据类型，如果data中的属性是对象，对象包裹对象，需要递归
+      // 发布 - 订阅模式
+      class Publish {
+        constructor() {
+          this.subList = [];
+        }
+        attachSub(subscribe) {
+          this.subList.push(subscribe);
+        }
+        detachSub(sub) {
+          var index = this.subList.findIndex(sub);
+          this.subList.splice(index, 1);
+        }
+        notify() {
+ 	console.log(this)
+          this.subList.forEach(sub => {
+ 			console.log("---1---")
+            sub.update();
+          });
+        }
+      }
+
+      class Subscribe {
+        constructor(vm, key, fn) {
+          this.vm = vm;
+          this.key = key;
+          this.fn = fn;
+          Publish.target = this;
+
+          let val = this.vm; //从vm中去拿
+          let arr = this.key.split("."); // [name,firstName]
+
+          arr.forEach(function(k) {
+            val = val[k];
+          });
+          // Publish.target = null;
+        }
+
+        update() {
+          let val = this.vm; //从vm中去拿
+          let arr = this.key.split("."); // [name,firstName]
+          arr.forEach(function(k) {
+            val = val[k];
+          });
+ console.error("--this.fn--")
+ 			console.error(this.fn)
+          this.fn(val);
+        }
+      }
+
+    </script>
+    <script type="text/javascript">
+       let vm = new Vue({
+        el: "#app",
+        data: {
+          name: {
+            firstName: "姓氏章",
+            lastName: "名字"
+          },
+          age: 12 //通过Obj.defineProperty实现（）或者Obj.defineProperties()实现
+        }
+      });
+  setTimeout(function(){
+  	console.log(300)
+  	vm._data.age = 300},5000)
+    </script>
+  </body>
+</html>
+​
