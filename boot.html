@@ -6,8 +6,9 @@
   <body>
     <div id="app">
       <p>姓名是{{ name.firstName }}</p>
+ <p>字是{{ name.lastName }}</p>
       <div>年龄是{{ age }}</div>
-      {{ name }}
+ <!--      {{ name }} -->
     </div>
     <script type="text/javascript">
       function Vue(options = {}) {
@@ -67,10 +68,11 @@
               let arr = key.split("."); // [name,firstName]
 
               let val = vm; //从vm中去拿
+ 				console.error(vm)
               arr.forEach(function(k) {
                 val = val[k];
               });
-
+console.warn(val)
               // 如果给的就是个对象，那么就序列化显示一下
               if (typeof val === "object") val = JSON.stringify(val);
 

@@ -5,7 +5,8 @@
         }
         addSub(sub){
             this.subs.push(sub) //当对象被访问时候get通过push压入subs数组
-            // console.log(this.subs)
+console.log("this is subs")
+            console.log(this.subs)
         }
         notify(){
 //             console.log('***this***')
@@ -15,6 +16,7 @@
             })
         }
     }
+
 // function alertInOne(){
 //     alert('in one');
 // }

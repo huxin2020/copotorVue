@@ -16,12 +16,17 @@
                    enumerable:true,//可配置
                   configurable:true,//可迭代
                   get:function reactGetter(){
+						// console.log("--get run--")
+						// console.log(Dep.target) 
+						// console.log("----------------------111-----------------")
                       if(Dep.target){//
+						
                           dp.addSub(Dep.target)//将watcher压入存储依赖的数组
                       }
                       return value
                   },
                   set:function reactsetter(newVale){
+						// console.log("--set run--")
                       if(newVale != value){
                           value = newVale
                   

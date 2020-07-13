@@ -9,26 +9,34 @@
 
   	</script> -->
     <div id="app">
-
+    	<div>{{name.lastName}}</div>
+    	<div>{{age}}</div>
+    	<div>{{name.firstName}}</div>
+    	{{age}}
     </div>
 <script  type="text/javascript"  src="./js/vue.js"></script>
 <script type="text/javascript">
-	// console.log("00")
-	// alertInTwo()
-	   //实例化
-    obtable={'time':'2019',
-            'hour':'17'}
-            //实例化Vue
-    var el = document.getElementById("app");
-    var ob = new Vue(obtable,el,"hour")
-//     console.log(obtable)
-    // ob.time = '2020'
-    // console.log(obtable.time)
-    obtable.time = '2020'
-    setTimeout(function(){
-      obtable.time = 2024
-    },5000)
-//     obtable.hour = '20'
+		   //实例化
+//     obtable={'time':'2019',
+//             'hour':'17'}
+//             //实例化Vue
+//     var el = document.getElementById("app");
+//     var ob = new Vue(obtable,el)
+
+//     obtable.time = '2020'
+//     setTimeout(function(){
+//       obtable.time = 2024
+//     },5000)
+	var ob = new Vue({
+        el: "#app",
+        data: {
+          name: {
+            firstName: "姓氏章",
+            lastName: "名字"
+          },
+          age: 12 //通过Obj.defineProperty实现（）或者Obj.defineProperties()实现
+        }
+      })
 
 </script>
 
